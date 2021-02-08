@@ -21,14 +21,14 @@ To download the SpanBERT model that was fine-tuned for relation classification i
 ./download_finetuned.sh
 ```
 
-### Apply SpanBERT to general sentences
-
+## Apply SpanBERT 
+Input is a list of python dicts, where each dict contains the sentence tokens ('tokens'), the head entity information ('subj'), and tail entity information ('obj')
 ```python
 from spanbert import SpanBERT
 bert = SpanBERT(pretrained_dir="./pretrained_spanbert")
 examples = [
-        {"tokens": "Bill Gates is the founder of Microsoft".split(), "subj": ('Bill Gates', "PERSON", (0,1)), "obj": ('Microsoft', "ORGANIZATION", (6,6))},
-        {"tokens": "Bill Gates is the founder of Microsoft".split(), "obj": ('Bill Gates', "PERSON", (0,1)), "subj": ('Microsoft', "ORGANIZATION", (6,6))}
+        {'tokens': ['Bill', 'Gates', 'is', 'the', 'founder', 'of', 'Microsoft'], 'subj': ('Bill Gates', 'PERSON', (0,1)), "obj": ('Microsoft', 'ORGANIZATION', (6,6))},
+        {'tokens': ['Bill', 'Gates', 'is', 'the', 'founder', 'of', 'Microsoft'], 'obj': ('Bill Gates', 'PERSON', (0,1)), "subj": ('Microsoft', 'ORGANIZATION', (6,6))}
         ]
 preds = bert.predict(examples)
 print(preds)
@@ -36,4 +36,4 @@ print(preds)
 
 
 ## Contact
-If you have any questions, please contact Giannis Karamanolakis `<gkaraman@cs.columbia.edu>` or create a Github issue.
+If you have any questions, please contact Giannis Karamanolakis `<gkaraman@cs.columbia.edu>`.
