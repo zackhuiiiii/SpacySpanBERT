@@ -12,7 +12,9 @@ import json
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
-from transformers import AutoTokenizer, AutoModel, BertForSequenceClassification
+#from transformers import AutoTokenizer, AutoModel, BertForSequenceClassification
+from pytorch_pretrained_bert.modeling import BertForSequenceClassification
+from pytorch_pretrained_bert.tokenization import BertTokenizer
 from scipy.special import softmax
 
 CLS = "[CLS]"
@@ -135,10 +137,10 @@ def predict(model, device, eval_dataloader, verbose=True):
         with torch.no_grad():
             logits = model(input_ids, segment_ids, input_mask, labels=None)
         if len(preds) == 0:
-            preds.append(logits[0].detach().cpu().numpy())
+            preds.append(logits.detach().cpu().numpy())
         else:
             preds[0] = np.append(
-                preds[0], logits[0].detach().cpu().numpy(), axis=0)
+                preds[0], logits.detach().cpu().numpy(), axis=0)
 
     pred_ids = np.argmax(preds[0], axis=1)
     pred_proba = np.max(softmax(preds[0]), axis=1)
@@ -158,7 +160,8 @@ class SpanBERT:
         self.label2id = {label: i for i, label in enumerate(label_list)}
         self.id2label = {i: label for i, label in enumerate(label_list)}
         self.num_labels = len(label_list)    
-        self.tokenizer = AutoTokenizer.from_pretrained("SpanBERT/spanbert-base-cased", do_lower_case=False)
+        #self.tokenizer = AutoTokenizer.from_pretrained("SpanBERT/spanbert-base-cased", do_lower_case=False)
+        self.tokenizer = BertTokenizer.from_pretrained(model, do_lower_case=False)
 
         print("Loading pre-trained classifier from {}".format(pretrained_dir))
         self.classifier = BertForSequenceClassification.from_pretrained(pretrained_dir, num_labels=self.num_labels)
