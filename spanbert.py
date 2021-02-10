@@ -61,8 +61,8 @@ def convert_examples_to_features(examples, max_seq_length, tokenizer, special_to
 
     def get_special_token(w):
         if w not in special_tokens:
-            import pdb; pdb.set_trace()
-            special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
+            raise(BaseException("ERROR: did not find special token {} in current dict: {}\n".format(w, special_tokens.keys())))
+            #special_tokens[w] = "[unused%d]" % (len(special_tokens) + 1)
         return special_tokens[w]
 
     examples = create_examples(examples)
@@ -143,7 +143,7 @@ def predict(model, device, eval_dataloader, verbose=True):
                 preds[0], logits.detach().cpu().numpy(), axis=0)
 
     pred_ids = np.argmax(preds[0], axis=1)
-    pred_proba = np.max(softmax(preds[0]), axis=1)
+    pred_proba = np.max(softmax(preds[0], axis=1), axis=1)
     return pred_ids, pred_proba
 
 
