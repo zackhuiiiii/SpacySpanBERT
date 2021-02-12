@@ -14,7 +14,7 @@ SpanBERT has the same model configuration as [BERT](https://github.com/google-re
 both the masking scheme and the training objectives.
 
 * Architecture: 24-layer, 1024-hidden, 16-heads, 340M parameters
-* Fine-tuning Dataset: TACRED
+* Fine-tuning Dataset: [TACRED](https://nlp.stanford.edu/projects/tacred/) ([42 relation types](https://github.com/gkaramanolakis/SpanBERT/blob/master/relations.txt))
 
 To download the fine-tuned SpanBERT model run: 
 
