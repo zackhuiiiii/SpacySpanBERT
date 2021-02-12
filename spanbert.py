@@ -121,9 +121,9 @@ def convert_examples_to_features(examples, max_seq_length, tokenizer, special_to
                               input_mask=input_mask,
                               segment_ids=segment_ids
                               ))
-    print("Average #tokens: %.2f" % (num_tokens * 1.0 / len(examples)))
-    print("%d (%.2f %%) examples can fit max_seq_length = %d" % (num_fit_examples,
-        num_fit_examples * 100.0 / len(examples), max_seq_length))
+    #  print("Average #tokens: %.2f" % (num_tokens * 1.0 / len(examples)))
+    #  print("%d (%.2f %%) examples can fit max_seq_length = %d" % (num_fit_examples,
+    #      num_fit_examples * 100.0 / len(examples), max_seq_length))
     return features
 
 
@@ -163,7 +163,7 @@ class SpanBERT:
         #self.tokenizer = AutoTokenizer.from_pretrained("SpanBERT/spanbert-base-cased", do_lower_case=False)
         self.tokenizer = BertTokenizer.from_pretrained(model, do_lower_case=False)
 
-        print("Loading pre-trained classifier from {}".format(pretrained_dir))
+        print("Loading pre-trained spanBERT from {}".format(pretrained_dir))
         self.classifier = BertForSequenceClassification.from_pretrained(pretrained_dir, num_labels=self.num_labels)
         if self.fp16:
             self.classifier.half()
@@ -177,7 +177,6 @@ class SpanBERT:
             torch.cuda.manual_seed_all(self.seed)
 
     def predict(self, examples):
-        print("Predicting labels for {} examples".format(len(examples)))
         features = convert_examples_to_features(examples, self.max_seq_length, self.tokenizer, special_tokens)
         all_input_ids = torch.tensor([f.input_ids for f in features], dtype=torch.long)
         all_input_mask = torch.tensor([f.input_mask for f in features], dtype=torch.long)
