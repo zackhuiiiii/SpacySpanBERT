@@ -28,7 +28,7 @@ To download the fine-tuned SpanBERT model run:
 from spanbert import SpanBERT
 bert = SpanBERT(pretrained_dir="./pretrained_spanbert")
 ```
-Input is a list of dicts, where each dict contains the sentence tokens ('tokens'), the subject entity information ('subj'), and object entity information ('obj'). Entity information is provided as a tuple: (<ENTITY NAME>, <ENTITY TYPE>, (<START LOCATION>, <END LOCATION>))
+Input is a list of dicts, where each dict contains the sentence tokens ('tokens'), the subject entity information ('subj'), and object entity information ('obj'). Entity information is provided as a tuple: (\<ENTITY NAME\>, \<ENTITY TYPE\>, (\<START LOCATION\>, \<END LOCATION\>))
 
 ```python
 examples = [
