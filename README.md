@@ -33,8 +33,8 @@ Input is a list of dicts, where each dict contains the sentence tokens ('tokens'
 ```python
 examples = [
         {'tokens': ['Bill', 'Gates', 'stepped', 'down', 'as', 'chairman', 'of', 'Microsoft'], 'subj': ('Bill Gates', 'PERSON', (0,1)), "obj": ('Microsoft', 'ORGANIZATION', (7,7))},
-        {'tokens': ['Bill', 'Gates', 'stepped', 'down', 'as', 'chairman', 'of', 'Microsoft'], "subj": ('Microsoft', 'ORGANIZATION', (7,7)), 'obj': ('Bill Gates', 'PERSON', (0,1))},
-        {'tokens': ['Zuckerberg', 'began', 'classes', 'at', 'Harvard', 'in', '2002'], "subj": ('Zuckerberg', 'PERSON', (0,0)), 'obj': ('Harvard', 'ORGANIZATION', (4,4))}
+        {'tokens': ['Bill', 'Gates', 'stepped', 'down', 'as', 'chairman', 'of', 'Microsoft'], 'subj': ('Microsoft', 'ORGANIZATION', (7,7)), 'obj': ('Bill Gates', 'PERSON', (0,1))},
+        {'tokens': ['Zuckerberg', 'began', 'classes', 'at', 'Harvard', 'in', '2002'], 'subj': ('Zuckerberg', 'PERSON', (0,0)), 'obj': ('Harvard', 'ORGANIZATION', (4,4))}
         ]
 preds = bert.predict(examples)
 ```
