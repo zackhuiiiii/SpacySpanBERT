@@ -31,11 +31,11 @@ To download the fine-tuned SpanBERT model run:
 bash ./download_finetuned.sh
 ```
 
-## Apply Spacy-SpanBERT 
+## Run Spacy-SpanBERT 
 The code below shows how to extract relations between entities of interest from raw text: 
 
 ```python
-raw_text = "Zuckerberg attended Harvard University, where he launched the Facebook social networking service from his dormitory room on February 4, 2004, with college roommates Eduardo Saverin, Andrew McCollum, Dustin Moskovitz, and Chris Hughes. Bill Gates stepped down as chairman of Microsoft in February 2014 and assumed a new post as technology adviser to support the newly appointed CEO Satya Nadella. "
+raw_text = "Bill Gates stepped down as chairman of Microsoft in February 2014 and assumed a new post as technology adviser to support the newly appointed CEO Satya Nadella."
 
 entities_of_interest = ["ORGANIZATION", "PERSON", "LOCATION", "CITY", "STATE_OR_PROVINCE", "COUNTRY"]
 
