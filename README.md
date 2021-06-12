@@ -5,9 +5,17 @@ This repository integrates spaCy with pre-trained SpanBERT. It is a fork from [S
 We have adapted the SpanBERT scripts to support relation extraction from general documents beyond the TACRED dataset. We extract entities using spaCy and classify relations using SpanBERT. This code has been used for the purpose of the Advanced Databases Course (Spring 2020 semester).
 
 ## Install Requirements
+First, create a conda environment running Python 3.6:
 
 ```bash
+conda create --name spacyspanbert python=3.6
+conda activate spacyspanbert
+```
+
+Then, install requirements and download spacy's en_core_web_lg:
+```bash
 pip install -r requirements.txt
+python3 -m spacy download en_core_web_lg
 ```
 
 ## Download Pre-Trained SpanBERT (Fine-Tuned in TACRED)
@@ -20,7 +28,7 @@ both the masking scheme and the training objectives.
 To download the fine-tuned SpanBERT model run: 
 
 ```bash
-./download_finetuned.sh
+bash ./download_finetuned.sh
 ```
 
 ## Apply Spacy-SpanBERT 
@@ -43,8 +51,10 @@ from spanbert import SpanBERT
 spanbert = SpanBERT("./pretrained_spanbert")  
 
 # Extract relations
+from spacy_help_functions import extract_relations
 relations = extract_relations(doc, spanbert, entities_of_interest)
-
+print("Relations: {}".format(dict(relations)))
+# Relations: {('Bill Gates', 'per:employee_of', 'Microsoft'): 1.0, ('Microsoft', 'org:top_members/employees', 'Bill Gates'): 0.992, ('Satya Nadella', 'per:employee_of', 'Microsoft'): 0.9844}
 ```
 
 You can directly run this example via the example_relations.py file.
