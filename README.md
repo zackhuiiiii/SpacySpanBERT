@@ -1,7 +1,8 @@
-# SpanBERT for Relation Extraction from Web Documents
-This repository is a fork from [SpanBERT](https://github.com/facebookresearch/SpanBERT) by Facebook Research, which contains code and models for the paper: [SpanBERT: Improving Pre-training by Representing and Predicting Spans](https://arxiv.org/abs/1907.10529).
+# spaCy-SpanBERT: Relation Extraction from Web Documents
 
-We have adapted the SpanBERT scripts to support relation extraction from general documents beyond the TACRED dataset. 
+This repository integrates spaCy with pre-trained SpanBERT. It is a fork from [SpanBERT](https://github.com/facebookresearch/SpanBERT) by Facebook Research, which contains code and models for the paper: [SpanBERT: Improving Pre-training by Representing and Predicting Spans](https://arxiv.org/abs/1907.10529).
+
+We have adapted the SpanBERT scripts to support relation extraction from general documents beyond the TACRED dataset. We extract entities using spaCy and classify relations using SpanBERT. This code has been used for the purpose of the Advanced Databases Course (Spring 2020 semester).
 
 ## Install Requirements
 
@@ -22,7 +23,33 @@ To download the fine-tuned SpanBERT model run:
 ./download_finetuned.sh
 ```
 
-## Apply SpanBERT 
+## Apply Spacy-SpanBERT 
+The code below shows how to extract relations between entities of interest from raw text: 
+
+```python
+raw_text = "Zuckerberg attended Harvard University, where he launched the Facebook social networking service from his dormitory room on February 4, 2004, with college roommates Eduardo Saverin, Andrew McCollum, Dustin Moskovitz, and Chris Hughes. Bill Gates stepped down as chairman of Microsoft in February 2014 and assumed a new post as technology adviser to support the newly appointed CEO Satya Nadella. "
+
+entities_of_interest = ["ORGANIZATION", "PERSON", "LOCATION", "CITY", "STATE_OR_PROVINCE", "COUNTRY"]
+
+# Load spacy model
+import spacy
+nlp = spacy.load("en_core_web_lg")  
+
+# Apply spacy model to raw text (to split to sentences, tokenize, extract entities etc.)
+doc = nlp(raw_text)  
+
+# Load pre-trained SpanBERT model
+from spanbert import SpanBERT 
+spanbert = SpanBERT("./pretrained_spanbert")  
+
+# Extract relations
+relations = extract_relations(doc, spanbert, entities_of_interest)
+
+```
+
+You can directly run this example via the example_relations.py file.
+
+## Directly Apply SpanBERT (without using spaCy)
 
 ```python
 from spanbert import SpanBERT
