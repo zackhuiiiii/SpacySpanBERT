@@ -1,4 +1,5 @@
 import spacy
+from collections import defaultdict
 
 spacy2bert = { 
         "ORG": "ORGANIZATION",
@@ -23,24 +24,60 @@ def get_entities(sentence, entities_of_interest):
     return [(e.text, spacy2bert[e.label_]) for e in sentence.ents if e.label_ in spacy2bert]
 
 
+def extract_relations(doc, spanbert, entities_of_interest=None, conf=0.7):
+    num_sentences = len([s for s in doc.sents])
+    print("Total # sentences = {}".format(num_sentences))
+    res = defaultdict(int)
+    for sentence in doc.sents:
+        print("\tprocessing sentence: {}".format(sentence))
+        entity_pairs = create_entity_pairs(sentence, entities_of_interest)
+        examples = []
+        for ep in entity_pairs:
+            examples.append({"tokens": ep[0], "subj": ep[1], "obj": ep[2]})
+            examples.append({"tokens": ep[0], "subj": ep[2], "obj": ep[1]})
+
+        preds = spanbert.predict(examples)
+        for ex, pred in list(zip(examples, preds)):
+            relation = pred[0]
+            if relation == 'no_relation':
+                continue
+            print("\n\t\t=== Extracted Relation ===")
+            print("\t\tTokens: {}".format(ex['tokens']))
+            subj = ex["subj"][0]
+            obj = ex["obj"][0]
+            confidence = pred[1]
+            print("\t\tRelation: {} (Confidence: {:.3f})\nSubject: {}\tObject: {}".format(relation, confidence, subj, obj))
+            if confidence > conf:
+                if res[(subj, relation, obj)] < confidence:
+                    res[(subj, relation, obj)] = confidence
+                    print("\t\tAdding to set of extracted relations")
+                else:
+                    print("\t\tDuplicate with lower confidence than existing record. Ignoring this.")
+            else:
+                print("\t\tConfidence is lower than threshold confidence. Ignoring this.")
+            print("\t\t==========")
+    return res
+
+
 def create_entity_pairs(sents_doc, entities_of_interest, window_size=40):
     '''
     Input: a spaCy Sentence object and a list of entities of interest
     Output: list of extracted entity pairs: (text, entity1, entity2)
     '''
-    entities_of_interest = {bert2spacy[b] for b in entities_of_interest}
+    if entities_of_interest is not None:
+        entities_of_interest = {bert2spacy[b] for b in entities_of_interest}
     ents = sents_doc.ents # get entities for given sentence
 
     length_doc = len(sents_doc)
     entity_pairs = []
     for i in range(len(ents)):
         e1 = ents[i]
-        if e1.label_ not in entities_of_interest:
+        if entities_of_interest is not None and e1.label_ not in entities_of_interest:
             continue
 
         for j in range(1, len(ents) - i):
             e2 = ents[i + j]
-            if e2.label_ not in entities_of_interest:
+            if entities_of_interest is not None and e2.label_ not in entities_of_interest:
                 continue
             if e1.text.lower() == e2.text.lower(): # make sure e1 != e2
                 continue
