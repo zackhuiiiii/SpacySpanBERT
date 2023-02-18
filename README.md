@@ -84,4 +84,4 @@ print("Output: ", preds)
 ```
 
 ## Contact
-If you have any questions, please contact Giannis Karamanolakis `<gkaraman@cs.columbia.edu>`.
+If you have any questions, please contact Zheng Hui `<zheng.hui@columbia.edu>`.
