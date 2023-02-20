@@ -5,10 +5,10 @@ This repository integrates spaCy with pre-trained SpanBERT. It is a fork from [S
 We have adapted the SpanBERT scripts to support relation extraction from general documents beyond the TACRED dataset. We extract entities using spaCy and classify relations using SpanBERT. This code has been used for the purpose of the Advanced Database Systems Course at Columbia University.
 
 ## Install Requirements
-First, create a conda environment running Python 3.6:
+First, create a conda environment running Python 3.7:
 
 ```bash
-conda create --name spacyspanbert python=3.6
+conda create --name spacyspanbert python=3.7
 conda activate spacyspanbert
 ```
 
