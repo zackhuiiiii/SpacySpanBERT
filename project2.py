@@ -105,13 +105,6 @@ def print_parameters(args):
 
 def main(args):
     print_parameters(args)
-    entities_of_interest = ["ORGANIZATION", "PERSON", "LOCATION", "CITY", "STATE_OR_PROVINCE", "COUNTRY"]
-    relation_to_entities = [
-        [entities_of_interest[1], entities_of_interest[0]],
-        [entities_of_interest[1], entities_of_interest[0]], 
-        entities_of_interest[1:], 
-        [entities_of_interest[0], entities_of_interest[1]], 
-    ]
     nlp = spacy.load("en_core_web_lg")  
 
     if args.spanbert:
@@ -151,14 +144,15 @@ def main(args):
             doc = nlp(text)
 
             print('\tAnnotating the webpage using spacy...')
-            relations, num_sentences_used = extract_relations(doc, model, relation_to_entities[args.r-1], args.t)
+            relations, num_sentences_used, overall_num_relations = extract_relations(doc, model, args.r, args.t)
             for r, conf in relations.items():
                 X.add(r, conf)
-            print('[main, X]: ', X)
+            print('[main, len(X), X]: ', len(X), X)
 
             print(f'\tExtracted annotations for  {num_sentences_used}  out of total  {len([s for s in doc.sents])}  sentences.')
-            print(f'\tRelations extracted from this website: {len(relations)} (Overall: {len(X)})\n')
+            print(f'\tRelations extracted from this website: {len(relations)} (Overall: {overall_num_relations})\n')
         n_iter += 1
+        break
     return
 
 
