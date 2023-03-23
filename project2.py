@@ -15,21 +15,17 @@ import sys
 import argparse
 import re
 
+from spanbert import SpanBERT
+from spacy_help_functions import *
+from relation_set import RelationSet
 from googleapiclient.discovery import build
 import requests
 from bs4 import BeautifulSoup
 import spacy
-from spanbert import SpanBERT
-from spacy_help_functions import *
 import openai
 
 from collections import Counter
 from collections import defaultdict
-from pprint import pprint
-import numpy as np
-from numpy import dot
-from numpy.linalg import norm
-
 
 
 def search(google_api_key, google_engine_id, q):
@@ -122,7 +118,7 @@ def main(args):
         model = SpanBERT("./pretrained_spanbert")  
     else:
         model = None
-    X = set()
+    X = RelationSet()
     visited = set()
     res = search(args.google_api_key, args.google_engine_id, args.q)
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
@@ -152,16 +148,16 @@ def main(args):
             if len(text) == 0:
                 print('\tWebpage has no main text to extract. Skipping...')
                 continue
-            
             doc = nlp(text)
 
             print('\tAnnotating the webpage using spacy...')
             relations, num_sentences_used = extract_relations(doc, model, relation_to_entities[args.r-1], args.t)
-
+            for r, conf in relations.items():
+                X.add(r, conf)
+            print('[main, X]: ', X)
 
             print(f'\tExtracted annotations for  {num_sentences_used}  out of total  {len([s for s in doc.sents])}  sentences.')
             print(f'\tRelations extracted from this website: {len(relations)} (Overall: {len(X)})\n')
-            print("Relations: {}".format(dict(relations)))
         n_iter += 1
     return
 
