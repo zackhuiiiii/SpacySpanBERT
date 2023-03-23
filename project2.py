@@ -63,6 +63,9 @@ def format_text(text):
     _remove_whitespace = re.compile(r'[\t\r\n]')
     text = _combine_whitespace.sub(' ', text).strip()
     text = _remove_whitespace.sub(' ', text).strip()
+    if len(text) > 10000:
+        print(f'Trimming webpage content from {len(text)} to 10000...')
+        return text[:10000]
     return text[:10000]
 
 
@@ -106,7 +109,9 @@ def main(args):
     res = search(args.google_api_key, args.google_engine_id, args.q)
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
 
+    n_iter = 0
     while len(X) < args.k:
+        print(f'=========== Iteration: {n_iter} - Query: {args.q} ===========')
         for i in range(len(res['items'])):
             num_webpages = len(res['items'])
             webpage = res['items'][i]
@@ -115,9 +120,11 @@ def main(args):
                 continue
             print(f'URL ({i+1} / {num_webpages}): {link}')
             visited.add(webpage['link'])
+
+            print (f'\tFetching text from url...')
             response = requests.get(webpage['link'], headers=headers, timeout=20)
             if response.status_code != 200:
-                print(f'Warning (response {response.status_code}): Target address {webpage["link"]}. Failed to retrieve webpage.')
+                print(f'\tWarning (response {response.status_code}): Target address {webpage["link"]}. Failed to retrieve webpage.')
                 continue
             else:
                 content = response.content
@@ -125,8 +132,14 @@ def main(args):
             text = soup.get_text(strip=True)
             text = format_text(text)
             doc = nlp(text)
-            relations = extract_relations(doc, model, relation_entities[relations_of_interest[args.r-1]], args.t)
+
+            print('\tAnnotating the webpage using spacy...')
+            relations, num_sentences_used = extract_relations(doc, model, relation_entities[relations_of_interest[args.r-1]], args.t)
+
+            print(f'\tExtracted annotations for  {num_sentences_used}  out of total  {len([s for s in doc.sents])}  sentences.')
+            print(f'\tRelations extracted from this website: {len(relations)} (Overall: {len(X)})\n')
             print("Relations: {}".format(dict(relations)))
+        n_iter += 1
         break
     return
 

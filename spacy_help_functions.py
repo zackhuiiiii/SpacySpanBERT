@@ -25,9 +25,11 @@ def get_entities(sentence, entities_of_interest):
 
 
 def extract_relations(doc, spanbert, entities_of_interest=None, conf=0.7):
-    num_sentences = len([s for s in doc.sents])
-    print("\tExtracted {} sentences. Processing each sentence to identify presence of entities of interest...".format(num_sentences))
     res = defaultdict(int)
+    num_sentences = len([s for s in doc.sents])
+    num_sentences_used = 0
+
+    print("\tExtracted {} sentences. Processing each sentence to identify presence of entities of interest...".format(num_sentences))
     c = 0
     for sentence in doc.sents:
         c += 1
@@ -47,22 +49,23 @@ def extract_relations(doc, spanbert, entities_of_interest=None, conf=0.7):
             relation = pred[0]
             if relation == 'no_relation':
                 continue
-            print("\n\t\t=== Extracted Relation ===")
+            print("\t\t=== Extracted Relation ===")
             print("\t\tTokens: {}".format(ex['tokens']))
             subj = ex["subj"][0]
             obj = ex["obj"][0]
             confidence = pred[1]
-            print("\t\tRelation: {} (Confidence: {:.3f})\nSubject: {}\tObject: {}".format(relation, confidence, subj, obj))
+            print("\t\tRelation: {} (Confidence: {:.3f})\n\t\tSubject: {}\t\tObject: {}".format(relation, confidence, subj, obj))
             if confidence > conf:
                 if res[(subj, relation, obj)] < confidence:
                     res[(subj, relation, obj)] = confidence
-                    print("\t\tAdding to set of extracted relations")
+                    num_sentences_used += 1
+                    print("\t\tAdding to set of extracted relations.")
                 else:
                     print("\t\tDuplicate with lower confidence than existing record. Ignoring this.")
             else:
                 print("\t\tConfidence is lower than threshold confidence. Ignoring this.")
             print("\t\t==========")
-    return res
+    return res, num_sentences_used
 
 
 def create_entity_pairs(sents_doc, entities_of_interest, window_size=40):
