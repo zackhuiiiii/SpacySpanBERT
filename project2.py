@@ -58,11 +58,31 @@ def search(google_api_key, google_engine_id, q):
     return res
 
 
+def extract_main_content(soup):
+    main_content_selectors = [
+        {'tag': 'div', 'class': 'main-content'},
+        {'tag': 'div', 'class': 'content'},
+        {'tag': 'article'},
+        {'tag': 'main'},
+        {'tag': 'section', 'class': 'post-content'},
+        {'tag': 'section', 'class': 'article-content'},
+    ]
+
+    for selector in main_content_selectors:
+        if 'class' in selector:
+            main_content = soup.find(selector['tag'], {'class': selector['class']})
+        else:
+            main_content = soup.find(selector['tag'])
+
+        if main_content is not None:
+            return main_content
+
+    return soup
+
+
 def format_text(text):
-    _combine_whitespace = re.compile(r'\s+')
-    _remove_whitespace = re.compile(r'[\t\r\n]')
-    text = _combine_whitespace.sub(' ', text).strip()
-    text = _remove_whitespace.sub(' ', text).strip()
+    text = re.sub(r'\s+', ' ', text).strip()
+    # text = re.sub(r'[\t\r\n]+', ' ', text).strip()
     if len(text) > 10000:
         print(f'Trimming webpage content from {len(text)} to 10000...')
         return text[:10000]
@@ -129,6 +149,7 @@ def main(args):
             else:
                 content = response.content
             soup = BeautifulSoup(content, 'html.parser')
+            soup = extract_main_content(soup)
             text = soup.get_text(strip=True)
             text = format_text(text)
             doc = nlp(text)

@@ -1,6 +1,20 @@
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+import ssl
 import spacy
 from collections import defaultdict
 
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+nltk.download('wordnet', quiet=True)
+
+nlp = spacy.load("en_core_web_lg")  
 spacy2bert = { 
         "ORG": "ORGANIZATION",
         "PERSON": "PERSON",
@@ -8,7 +22,6 @@ spacy2bert = {
         "LOC": "LOCATION",
         "DATE": "DATE"
         }
-
 bert2spacy = {
         "ORGANIZATION": "ORG",
         "PERSON": "PERSON",
@@ -18,6 +31,22 @@ bert2spacy = {
         "STATE_OR_PROVINCE": "GPE",
         "DATE": "DATE"
         }
+
+
+def preprocess_sent(sent):
+    sent_text = sent.text
+    tokens = []
+    lemmatizer = WordNetLemmatizer()
+    stop_words = set(stopwords.words('english'))
+    for token in (word_tokenize(sent_text)):
+        if token.lower() not in stop_words:
+            tokens.append(lemmatizer.lemmatize(token))
+
+    preprocessed_sent = ' '.join(tokens)
+    preprocessed_span = sent[sent.start:sent.end].as_doc()
+    preprocessed_span.text = preprocessed_sent
+    
+    return preprocessed_span
 
 
 def get_entities(sentence, entities_of_interest):
@@ -36,9 +65,12 @@ def extract_relations(doc, spanbert, entities_of_interest=None, conf=0.7):
         if c % 5 == 0:
             print(f"\tProcessed {c} / {num_sentences} sentences ")
         
+        print('SENT: ', sentence)
         entity_pairs = create_entity_pairs(sentence, entities_of_interest)
+
         if len(entity_pairs) == 0:
             continue
+
         examples = []
         for ep in entity_pairs:
             examples.append({"tokens": ep[0], "subj": ep[1], "obj": ep[2]})
