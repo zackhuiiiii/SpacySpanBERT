@@ -151,18 +151,18 @@ def main(args):
             text = extract_main_text(soup)
             if len(text) == 0:
                 print('\tWebpage has no main text to extract. Skipping...')
-
                 continue
+            
             doc = nlp(text)
 
             print('\tAnnotating the webpage using spacy...')
             relations, num_sentences_used = extract_relations(doc, model, relation_to_entities[args.r-1], args.t)
 
+
             print(f'\tExtracted annotations for  {num_sentences_used}  out of total  {len([s for s in doc.sents])}  sentences.')
             print(f'\tRelations extracted from this website: {len(relations)} (Overall: {len(X)})\n')
             print("Relations: {}".format(dict(relations)))
         n_iter += 1
-        break
     return
 
 
