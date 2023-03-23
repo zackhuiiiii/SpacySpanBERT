@@ -19,8 +19,8 @@ from googleapiclient.discovery import build
 import requests
 from bs4 import BeautifulSoup
 import spacy
-from SpanBERT.spanbert import SpanBERT
-from SpanBERT.spacy_help_functions import *
+from spanbert import SpanBERT
+from spacy_help_functions import *
 import openai
 
 from collections import Counter
@@ -98,7 +98,7 @@ def main(args):
     nlp = spacy.load("en_core_web_lg")  
 
     if args.spanbert:
-        model = SpanBERT("./SpanBERT/pretrained_spanbert")  
+        model = SpanBERT("./pretrained_spanbert")  
     else:
         model = None
     X = set()

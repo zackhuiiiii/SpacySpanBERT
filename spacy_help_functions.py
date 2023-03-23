@@ -26,11 +26,17 @@ def get_entities(sentence, entities_of_interest):
 
 def extract_relations(doc, spanbert, entities_of_interest=None, conf=0.7):
     num_sentences = len([s for s in doc.sents])
-    print("Total # sentences = {}".format(num_sentences))
+    print("\tExtracted {} sentences. Processing each sentence to identify presence of entities of interest...".format(num_sentences))
     res = defaultdict(int)
+    c = 0
     for sentence in doc.sents:
-        print("\tprocessing sentence: {}".format(sentence))
+        c += 1
+        if c % 5 == 0:
+            print(f"\tProcessed {c} / {num_sentences} sentences ")
+        
         entity_pairs = create_entity_pairs(sentence, entities_of_interest)
+        if len(entity_pairs) == 0:
+            continue
         examples = []
         for ep in entity_pairs:
             examples.append({"tokens": ep[0], "subj": ep[1], "obj": ep[2]})
@@ -122,4 +128,3 @@ def create_entity_pairs(sents_doc, entities_of_interest, window_size=40):
                     assert x[e2.start-gap] == e2.text, "{}, {}".format(e2_info, x)
                 entity_pairs.append((x, e1_info, e2_info))
     return entity_pairs
-
