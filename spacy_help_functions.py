@@ -1,7 +1,3 @@
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
 import ssl
 import spacy
 from collections import defaultdict
@@ -12,7 +8,6 @@ except AttributeError:
     pass
 else:
     ssl._create_default_https_context = _create_unverified_https_context
-nltk.download('wordnet', quiet=True)
 
 nlp = spacy.load("en_core_web_lg")  
 spacy2bert = { 
@@ -53,7 +48,7 @@ def get_entities(sentence, entities_of_interest):
     return [(e.text, spacy2bert[e.label_]) for e in sentence.ents if e.label_ in spacy2bert]
 
 
-def extract_relations(doc, spanbert, entities_of_interest=None, conf=0.7):
+def extract_relations(doc, spanbert, r=None, entities_of_interest=None, conf=0.7):
     res = defaultdict(int)
     num_sentences = len([s for s in doc.sents])
     num_sentences_used = 0
@@ -65,17 +60,15 @@ def extract_relations(doc, spanbert, entities_of_interest=None, conf=0.7):
         if c % 5 == 0:
             print(f"\tProcessed {c} / {num_sentences} sentences ")
         
-        print('SENT: ', sentence)
         entity_pairs = create_entity_pairs(sentence, entities_of_interest)
-
-        if len(entity_pairs) == 0:
-            continue
-
         examples = []
         for ep in entity_pairs:
+            if ep[1][1] not in entities_of_interest[:1] or ep[2][1] not in entities_of_interest[1:]:
+                continue
             examples.append({"tokens": ep[0], "subj": ep[1], "obj": ep[2]})
-            examples.append({"tokens": ep[0], "subj": ep[2], "obj": ep[1]})
-
+        if len(examples) == 0:
+            continue
+        
         preds = spanbert.predict(examples)
         for ex, pred in list(zip(examples, preds)):
             relation = pred[0]

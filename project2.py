@@ -58,35 +58,34 @@ def search(google_api_key, google_engine_id, q):
     return res
 
 
-def extract_main_content(soup):
-    main_content_selectors = [
-        {'tag': 'div', 'class': 'main-content'},
-        {'tag': 'div', 'class': 'content'},
-        {'tag': 'article'},
-        {'tag': 'main'},
-        {'tag': 'section', 'class': 'post-content'},
-        {'tag': 'section', 'class': 'article-content'},
-    ]
+def extract_main_text(soup):
+    main_text = ''
+    main_content = soup.find('main')
+    if not main_content:
+        return main_text
+    
+    for tag in main_content.find_all(["div", "table"], {"class": ["toc", "infobox"]}):
+        tag.decompose()
 
-    for selector in main_content_selectors:
-        if 'class' in selector:
-            main_content = soup.find(selector['tag'], {'class': selector['class']})
+    pragraphs = main_content.find_all('p')
+    rem_char = 10000
+    for p in pragraphs:
+        if rem_char <= 0:
+            break
+        p_text = format_text(p.get_text())
+        if len(p_text) > rem_char:
+            main_text += p_text[:rem_char] + ' '
+            rem_char = 0
         else:
-            main_content = soup.find(selector['tag'])
-
-        if main_content is not None:
-            return main_content
-
-    return soup
+            main_text += p_text + ' '
+            rem_char -= len(p_text)
+    return main_text
 
 
 def format_text(text):
-    text = re.sub(r'\s+', ' ', text).strip()
-    # text = re.sub(r'[\t\r\n]+', ' ', text).strip()
-    if len(text) > 10000:
-        print(f'Trimming webpage content from {len(text)} to 10000...')
-        return text[:10000]
-    return text[:10000]
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'[\t\r\n]+', ' ', text)
+    return text.strip()
 
 
 def print_parameters(args):
@@ -112,11 +111,11 @@ def main(args):
     print_parameters(args)
     entities_of_interest = ["ORGANIZATION", "PERSON", "LOCATION", "CITY", "STATE_OR_PROVINCE", "COUNTRY"]
     relations_of_interest = ['Schools_Attended', 'Work_For', 'Live_In', 'Top_Member_Employees']
-    relation_entities = {
-        'Schools_Attended': entities_of_interest[:2], 
-        'Work_For': entities_of_interest[:2], 
+    relation_to_entities = {
+        'Schools_Attended': [entities_of_interest[1], entities_of_interest[0]],
+        'Work_For': [entities_of_interest[1], entities_of_interest[0]], 
         'Live_In': entities_of_interest[1:], 
-        'Top_Member_Employees': entities_of_interest[:2]
+        'Top_Member_Employees': [entities_of_interest[0], entities_of_interest[1]], 
     }
     nlp = spacy.load("en_core_web_lg")  
 
@@ -137,6 +136,7 @@ def main(args):
             webpage = res['items'][i]
             link = webpage['link']
             if webpage['link'] in visited:
+                print('\tWebpage has already been visited. Skipping...')
                 continue
             print(f'URL ({i+1} / {num_webpages}): {link}')
             visited.add(webpage['link'])
@@ -147,15 +147,17 @@ def main(args):
                 print(f'\tWarning (response {response.status_code}): Target address {webpage["link"]}. Failed to retrieve webpage.')
                 continue
             else:
-                content = response.content
+                content = response.text
             soup = BeautifulSoup(content, 'html.parser')
-            soup = extract_main_content(soup)
-            text = soup.get_text(strip=True)
-            text = format_text(text)
+            text = extract_main_text(soup)
+            if len(text) == 0:
+                print('\tWebpage has no main text to extract. Skipping...')
+
+                continue
             doc = nlp(text)
 
             print('\tAnnotating the webpage using spacy...')
-            relations, num_sentences_used = extract_relations(doc, model, relation_entities[relations_of_interest[args.r-1]], args.t)
+            relations, num_sentences_used = extract_relations(doc, model, relation_to_entities[relations_of_interest[args.r-1]], args.t)
 
             print(f'\tExtracted annotations for  {num_sentences_used}  out of total  {len([s for s in doc.sents])}  sentences.')
             print(f'\tRelations extracted from this website: {len(relations)} (Overall: {len(X)})\n')
