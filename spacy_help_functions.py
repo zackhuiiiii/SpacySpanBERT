@@ -28,27 +28,11 @@ bert2spacy = {
         }
 
 
-def preprocess_sent(sent):
-    sent_text = sent.text
-    tokens = []
-    lemmatizer = WordNetLemmatizer()
-    stop_words = set(stopwords.words('english'))
-    for token in (word_tokenize(sent_text)):
-        if token.lower() not in stop_words:
-            tokens.append(lemmatizer.lemmatize(token))
-
-    preprocessed_sent = ' '.join(tokens)
-    preprocessed_span = sent[sent.start:sent.end].as_doc()
-    preprocessed_span.text = preprocessed_sent
-    
-    return preprocessed_span
-
-
 def get_entities(sentence, entities_of_interest):
     return [(e.text, spacy2bert[e.label_]) for e in sentence.ents if e.label_ in spacy2bert]
 
 
-def extract_relations(doc, spanbert, r=None, entities_of_interest=None, conf=0.7):
+def extract_relations(doc, spanbert, entities_of_interest=None, conf=0.7):
     res = defaultdict(int)
     num_sentences = len([s for s in doc.sents])
     num_sentences_used = 0

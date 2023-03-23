@@ -110,13 +110,12 @@ def print_parameters(args):
 def main(args):
     print_parameters(args)
     entities_of_interest = ["ORGANIZATION", "PERSON", "LOCATION", "CITY", "STATE_OR_PROVINCE", "COUNTRY"]
-    relations_of_interest = ['Schools_Attended', 'Work_For', 'Live_In', 'Top_Member_Employees']
-    relation_to_entities = {
-        'Schools_Attended': [entities_of_interest[1], entities_of_interest[0]],
-        'Work_For': [entities_of_interest[1], entities_of_interest[0]], 
-        'Live_In': entities_of_interest[1:], 
-        'Top_Member_Employees': [entities_of_interest[0], entities_of_interest[1]], 
-    }
+    relation_to_entities = [
+        [entities_of_interest[1], entities_of_interest[0]],
+        [entities_of_interest[1], entities_of_interest[0]], 
+        entities_of_interest[1:], 
+        [entities_of_interest[0], entities_of_interest[1]], 
+    ]
     nlp = spacy.load("en_core_web_lg")  
 
     if args.spanbert:
@@ -157,7 +156,7 @@ def main(args):
             doc = nlp(text)
 
             print('\tAnnotating the webpage using spacy...')
-            relations, num_sentences_used = extract_relations(doc, model, relation_to_entities[relations_of_interest[args.r-1]], args.t)
+            relations, num_sentences_used = extract_relations(doc, model, relation_to_entities[args.r-1], args.t)
 
             print(f'\tExtracted annotations for  {num_sentences_used}  out of total  {len([s for s in doc.sents])}  sentences.')
             print(f'\tRelations extracted from this website: {len(relations)} (Overall: {len(X)})\n')
