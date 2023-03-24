@@ -163,7 +163,7 @@ class SpanBERT:
         #self.tokenizer = AutoTokenizer.from_pretrained("SpanBERT/spanbert-base-cased", do_lower_case=False)
         self.tokenizer = BertTokenizer.from_pretrained(model, do_lower_case=False)
 
-        print("Loading pre-trained spanBERT from {}".format(pretrained_dir))
+        print("Loading pre-trained spanBERT from {}...\n".format(pretrained_dir))
         self.classifier = BertForSequenceClassification.from_pretrained(pretrained_dir, num_labels=self.num_labels)
         if self.fp16:
             self.classifier.half()
@@ -198,4 +198,5 @@ if __name__ == "__main__":
     for example, pred in list(zip(examples, preds)):
         example["relation"] = pred
         print(example)
+
 

@@ -1,3 +1,5 @@
+# UPDATE THIS README
+
 # spaCy-SpanBERT: Relation Extraction from Web Documents
 
 This repository integrates spaCy with pre-trained SpanBERT. It is a fork from [SpanBERT](https://github.com/facebookresearch/SpanBERT) by Facebook Research, which contains code and models for the paper: [SpanBERT: Improving Pre-training by Representing and Predicting Spans](https://arxiv.org/abs/1907.10529).
